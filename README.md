@@ -44,7 +44,3 @@ Simply delete the `history.db` file.
     * User's own message to be displayed on the opposite side
     * Messages are archievd when the user logout, not when the user leaves the room
     * Chat history should starts from the most recent and cap at certain time
-
-
-
-# chat3
