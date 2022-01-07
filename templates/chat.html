@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content%}
+<div class="container">
+    <div class="row">
+        <h1>Room {{ room }}</h1>
+        <div class="message-box"><div id="messages" class="message-box-content"></div></div>
+        <center>
+            <form id="message_form" action="#">
+                <input type="text" id="message_input" placeholder="Enter your message here" >
+                <button type="submit">Send</button>
+            </form>
+            <br>
+            <!-- <form action="/">
+                <button type="submit" onclick="logout()" >Logout</button>
+            </form>
+            <br> -->
+        </center>
+    </div>
+</div>
+{% endblock%}
+
+{% block scripts %} 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script>
+    // the user is connected and joins the chat room on visiting this page
+    const socket = io.connect("http://127.0.0.1:5000");
+
+    socket.on('connect', function (){
+        socket.emit('join_room', {
+            username: "{{ username }}", 
+            room: "{{ room }}"
+        })
+
+        let message_input = document.getElementById('message_input');
+
+        document.getElementById('message_form').onsubmit = function(event) {
+            event.preventDefault();
+            let message = message_input.value.trim();
+            if (message.length) {
+                socket.emit('send_message', {
+                    username: "{{ username }}",
+                    room: "{{ room }}",
+                    message: message
+                })
+            }
+            message_input.value = '';
+            message_input.focus();
+        }
+    })
+
+    // the user disconnects and leaves the chat room on leaving the page
+    window.onbeforeunload = function () {
+        socket.emit('leave_room', {
+            username: "{{ username }}",
+            room: "{{ room }}"
+        })
+    };
+
+    // // the user logs out on clicking the logout button
+    // function logout() {
+    //     socket.emit('logout', {
+    //         username: "{{ username }}",
+    //         room: "{{ room }}"
+    //     })
+    // }
+
+    socket.on('received_message', function(data) {
+        console.log(data);
+        const newNode = document.createElement('div');
+        if (data.username == "{{ username }}") {
+            newNode.innerHTML = `Me: ${data.message} [${data.created_at}]`;
+        } else {
+            newNode.innerHTML = `${data.username}: ${data.message} [${data.created_at}]`;
+        }
+        document.getElementById('messages').appendChild(newNode);
+    })
+
+    socket.on('join_room_announcement', function(data) {
+        console.log(data);
+        if (data.username != "{{ username }}") {
+            const newNode = document.createElement('div');
+            newNode.innerHTML = `<b>${data.username} has joined the room</b>`;
+            document.getElementById('messages').appendChild(newNode);
+        }
+    })
+
+    socket.on('leave_room_announcement', function (data) {
+        console.log(data);
+        const newNode = document.createElement('div');
+        newNode.innerHTML = `<b>${data.username} has left the room</b>`;
+        document.getElementById('messages').appendChild(newNode);
+    });
+    
+    $("#messages").scrollTop($("#messages")[0].scrollHeight);
+
+</script>
+{% endblock %}
