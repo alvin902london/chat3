@@ -21,6 +21,7 @@ def handle_send_message_event(data):
     history = History(username=data['username'], room=data['room'], message=data['message'], created_at=created_at)
     _save_msg(history)
 
+    
     data['created_at'] = created_at.strftime("%d %b %Y, %H:%M")
     socketio.emit('received_message', data, room=data['room'])
 

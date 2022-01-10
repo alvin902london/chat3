@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content%}
+<h1>The total numebr of messages:</h1>
+<table>
+    <tr>
+        <td>User</td>
+        <td>Total number of message sent</td>
+    </tr>
+{% for data_point in result %}
+    <tr>
+        <td>{{ data_point[0] }}</td>
+        <td>{{ data_point[1] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

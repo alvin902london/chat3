@@ -66,18 +66,25 @@
     // }
 
     socket.on('received_message', function(data) {
-        console.log(data);
         const newNode = document.createElement('div');
+       
         if (data.username == "{{ username }}") {
             newNode.innerHTML = `Me: ${data.message} [${data.created_at}]`;
         } else {
-            newNode.innerHTML = `${data.username}: ${data.message} [${data.created_at}]`;
+            // if username is in data.message & '@' as the prefix > bold it
+        
+            if (/^@{{username}}$/.test(data.message)) {
+            // if ( data.message.toLowerCase().includes( "@{{ username }}".toLowerCase() ) ) {
+                newNode.innerHTML = `<b style="color:blue;" >${data.username}: ${data.message} [${data.created_at}]</b>`;
+            } else {
+                newNode.innerHTML = `${data.username}: ${data.message} [${data.created_at}]`;
+            }
+
         }
         document.getElementById('messages').appendChild(newNode);
     })
 
     socket.on('join_room_announcement', function(data) {
-        console.log(data);
         if (data.username != "{{ username }}") {
             const newNode = document.createElement('div');
             newNode.innerHTML = `<b>${data.username} has joined the room</b>`;
@@ -86,12 +93,11 @@
     })
 
     socket.on('leave_room_announcement', function (data) {
-        console.log(data);
         const newNode = document.createElement('div');
         newNode.innerHTML = `<b>${data.username} has left the room</b>`;
         document.getElementById('messages').appendChild(newNode);
     });
-    
+
     $("#messages").scrollTop($("#messages")[0].scrollHeight);
 
 </script>
